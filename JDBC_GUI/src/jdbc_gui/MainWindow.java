@@ -11,6 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
@@ -135,7 +136,8 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
 
-        btnDelete.setText("jButton1");
+        btnDelete.setText("Delete");
+        btnDelete.setEnabled(false);
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnDeleteActionPerformed(evt);
@@ -230,6 +232,8 @@ public class MainWindow extends javax.swing.JFrame {
             lbUsername.setEnabled(true);
             txtDatabase.setEnabled(true);
             txtPassword.setEnabled(true);
+            jTable2.setModel(new DefaultTableModel()); // Eine neue Tabelle erzeugen
+            jTable2.setEnabled(false); // Die Tabelle aktivieren
         } catch (SQLException ex) {
            javax.swing.JOptionPane.showMessageDialog(this,"Disconnected from database.");
             }
@@ -248,7 +252,90 @@ public class MainWindow extends javax.swing.JFrame {
             PrimaryKey=res_prim.getString(4);
             pkPosition=res_prim.getInt("KEY_SEQ")-1;
             System.out.println("pkPosition: "+ pkPosition);
-            ResultSet res=md.getColumns(null,null,"city",null);//nur im console mit sout
+            ResultSet res=md.getColumns(null,null,"city",null);//nur im console mit sout ausgeben
+            //DefaultTableModel tableModel=new DefaultTableModel();//auch im Gui
+            Our_TableModel tableModel=new Our_TableModel(pkPosition);//damit wir ID nicht andern konnen.
+            int num_cols=0;
+            while(res.next()){
+                tableModel.addColumn(res.getString(4));
+                //System.out.println(res.getString(4));
+                num_cols++;
+            }
+            
+            Statement stmt=con.createStatement();
+            res=stmt.executeQuery("SELECT * FROM city");
+            while(res.next()){
+                Object[] arr=new Object[num_cols];
+                //jedes Element in res.next() in array legen
+                for(int i=0;i<num_cols;i++){
+                    arr[i]=res.getObject(i+1);
+                }
+                tableModel.addRow(arr);
+            }
+                tableModel.addTableModelListener(new TableModelListener(){
+
+
+                @Override
+                public void tableChanged(TableModelEvent e) {
+                    tableModelChanged(e);
+                    System.out.println("Table changed.");
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+        });
+            jTable2.setModel(tableModel);
+            BtConnect.setEnabled(false);
+            btnDelete.setEnabled(true);
+            txtServerLocalhost.setEnabled(false);
+            txtPort3306.setEnabled(false);
+            BtDisconnect.setEnabled(true);
+            btnDelete.setEnabled(true);
+            lbUsername.setEnabled(false);
+            txtDatabase.setEnabled(false);
+            txtPassword.setEnabled(false);
+            
+            
+            
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+           javax.swing.JOptionPane.showMessageDialog(this,"something went wrong during connection.");
+        }
+    }//GEN-LAST:event_BtConnectActionPerformed
+
+    private void txtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtPasswordActionPerformed
+
+    private void txtDatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDatabaseActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtDatabaseActionPerformed
+
+    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
+        int row=jTable2.getSelectedRow(); 
+        String name = jTable2.getModel().getValueAt(row, pkPosition).toString();
+        try {
+            int id=(int) jTable2.getModel().getValueAt(row,pkPosition);
+            PreparedStatement delete = con.prepareStatement("DELETE FROM  city  WHERE "+ PrimaryKey +" = ? ");
+            delete.setInt(1,id);
+            System.out.println(delete);
+            delete.executeUpdate();
+            
+        } catch (SQLException ex) {
+            System.out.println("Error delteing Column");
+            javax.swing.JOptionPane.showMessageDialog(this,"Cannot delete column.","Database error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://localhost/world", "root", "");
+            md=con.getMetaData();
+            ResultSet res_prim=md.getPrimaryKeys(null,null,"city");
+            javax.swing.JOptionPane.showMessageDialog(this,"Connected to database.");
+
+            res_prim.next();
+            System.out.println("Primary Key: "+res_prim.getString(4));
+            PrimaryKey=res_prim.getString(4);
+            pkPosition=res_prim.getInt("KEY_SEQ")-1;
+            System.out.println("pkPosition: "+ pkPosition);
+            ResultSet res=md.getColumns(null,null,"city",null);//nur im console mit sout ausgeben
             //DefaultTableModel tableModel=new DefaultTableModel();//auch im Gui
             Our_TableModel tableModel=new Our_TableModel(pkPosition);//damit wir ID nicht andern konnen.
             int num_cols=0;
@@ -292,36 +379,7 @@ public class MainWindow extends javax.swing.JFrame {
             ex.printStackTrace();
            javax.swing.JOptionPane.showMessageDialog(this,"something went wrong during connection.");
         }
-    }//GEN-LAST:event_BtConnectActionPerformed
-
-    private void txtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPasswordActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtPasswordActionPerformed
-
-    private void txtDatabaseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtDatabaseActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_txtDatabaseActionPerformed
-
-    private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-         String name = jTable2.getModel().getValueAt(row, pkPosition).toString();
-        selItem = ddTable.getSelectedItem().toString();
-        try {
-            PreparedStatement delete = con.prepareStatement("DELETE FROM "+ddTable.getSelectedItem().toString()+" WHERE "+PrimaryKey+" = ? ");
-            delete.setString(1, name);
-            System.out.println(delete);
-            delete.executeUpdate();
-            //tblEntries.setModel(new DefaultTableModel());
-            lastRow = row;
-            tableModel.addRow(new Object[num_columns]); 
-            jTable2.setModel(tableModel);
-            ddDatabase.setSelectedItem(ddDatabase.getSelectedItem());
-            
-            //tblEntries.setModel(new DefaultTableModel());
-        } catch (SQLException ex) {
-            System.out.println("Error delteing Column");
-            javax.swing.JOptionPane.showMessageDialog(this,"Cannot delete column.","Database error",
-                    JOptionPane.ERROR_MESSAGE);
-        }
+        //jTable2.setModel(new DefaultTableModel());
     }//GEN-LAST:event_btnDeleteActionPerformed
         public void tableModelChanged(TableModelEvent e ){
             int row=e.getFirstRow();
