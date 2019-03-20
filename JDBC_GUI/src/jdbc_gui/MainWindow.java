@@ -22,16 +22,17 @@ import javax.swing.table.DefaultTableModel;
  * @author reihox14
  */
 public class MainWindow extends javax.swing.JFrame {
-    Connection con=null;
-    DatabaseMetaData md=null;
-    String PrimaryKey=null;
-    int pkPosition=0;
+    //---------------- Variablen deklarieren ----------------------
+    Connection con=null;//Variable Connection deklarieren und mit null initialisieren
+    DatabaseMetaData md=null;//Daten uber die Spalten der Tabelle werden gespeichert
+    String PrimaryKey=null;//Primary key gespeichert
+    int pkPosition=0;//primary key position gespeichert
     
     public MainWindow() {
         initComponents();
         
         try {
-            Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.jdbc.Driver");//Datenbank Schnittstelle einlegen, mithilfe eines Treibers fur Mysql von JDBC
         } catch (ClassNotFoundException ex) {
             System.out.println("Couldn't get Driver");
             javax.swing.JOptionPane.showMessageDialog(this,"thank you");
@@ -212,37 +213,37 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtServerLocalhostActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtServerLocalhostActionPerformed
-        // TODO add your handling code here:
+        //event performed
     }//GEN-LAST:event_txtServerLocalhostActionPerformed
 
     private void txtPort3306ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPort3306ActionPerformed
-        
+         //event performed
     }//GEN-LAST:event_txtPort3306ActionPerformed
 
     private void BtDisconnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtDisconnectActionPerformed
-       Connection con=null; 
+       Connection con=null; //Connection variable mit null initialisieren
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost/World", "root", "");
-            javax.swing.JOptionPane.showMessageDialog(this,"Disconnected from database.");
-            BtConnect.setEnabled(true);
-            txtServerLocalhost.setEnabled(true);
-            txtPort3306.setEnabled(true);
-            BtDisconnect.setEnabled(false);
-            btnDelete.setEnabled(false);
-            lbUsername.setEnabled(true);
-            txtDatabase.setEnabled(true);
-            txtPassword.setEnabled(true);
+            con = DriverManager.getConnection("jdbc:mysql://localhost/World", "root", "");//mit world datenbank verbinden
+            javax.swing.JOptionPane.showMessageDialog(this,"Disconnected from database.");//erfolgreich disconnected
+            BtConnect.setEnabled(true);//Button aktivieren
+            txtServerLocalhost.setEnabled(true);//Button aktivieren
+            txtPort3306.setEnabled(true);//Button aktivieren
+            BtDisconnect.setEnabled(false);//Button deaktivieren
+            btnDelete.setEnabled(false);//Button deaktivieren
+            lbUsername.setEnabled(true);//Button aktivieren
+            txtDatabase.setEnabled(true);//Button aktivieren
+            txtPassword.setEnabled(true);//Button aktivieren
             jTable2.setModel(new DefaultTableModel()); // Eine neue Tabelle erzeugen
-            jTable2.setEnabled(false); // Die Tabelle aktivieren
+            jTable2.setEnabled(false); // Die Tabelle deaktivieren
         } catch (SQLException ex) {
-           javax.swing.JOptionPane.showMessageDialog(this,"Disconnected from database.");
+           javax.swing.JOptionPane.showMessageDialog(this,"Disconnected from database.");//erfolgreich disconnected
             }
     }//GEN-LAST:event_BtDisconnectActionPerformed
 
     private void BtConnectActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BtConnectActionPerformed
 
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost/world", "root", "");
+            con = DriverManager.getConnection("jdbc:mysql://localhost/world", "root", "");//mit world datenbank verbinden
             md=con.getMetaData();
             ResultSet res_prim=md.getPrimaryKeys(null,null,"city");
             javax.swing.JOptionPane.showMessageDialog(this,"Connected to database.");
@@ -283,15 +284,15 @@ public class MainWindow extends javax.swing.JFrame {
                 }
         });
             jTable2.setModel(tableModel);
-            BtConnect.setEnabled(false);
-            btnDelete.setEnabled(true);
-            txtServerLocalhost.setEnabled(false);
-            txtPort3306.setEnabled(false);
-            BtDisconnect.setEnabled(true);
-            btnDelete.setEnabled(true);
-            lbUsername.setEnabled(false);
-            txtDatabase.setEnabled(false);
-            txtPassword.setEnabled(false);
+            BtConnect.setEnabled(false);//Button deaktiviert
+            btnDelete.setEnabled(true);//Button aktiviert
+            txtServerLocalhost.setEnabled(false);//Button deaktiviert
+            txtPort3306.setEnabled(false);//Button deaktiviert
+            BtDisconnect.setEnabled(true);//Button aktiviert
+            btnDelete.setEnabled(true);//Button aktiviert
+            lbUsername.setEnabled(false);//Button deaktiviert
+            txtDatabase.setEnabled(false);//Button deaktiviert
+            txtPassword.setEnabled(false);//Button deaktiviert
             
             
             
@@ -362,7 +363,6 @@ public class MainWindow extends javax.swing.JFrame {
                 public void tableChanged(TableModelEvent e) {
                     tableModelChanged(e);
                     System.out.println("Table changed.");
-                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                 }
         });
             jTable2.setModel(tableModel);
@@ -388,11 +388,9 @@ public class MainWindow extends javax.swing.JFrame {
             int id=Integer.parseInt(jTable2.getModel().getValueAt(row, pkPosition).toString());
             String entry_changed=jTable2.getModel().getValueAt(row,e.getColumn()).toString();
             try{
-                 //PreparedStatement update=con.prepareStatement("UPDATE city SET ? = ? WHERE ? = ?");
+      
                  PreparedStatement update=con.prepareStatement("UPDATE city SET " + columnName + "= ? WHERE "+PrimaryKey+" = ?");
-                 //update.setString(1,columnName);
                  update.setString(1,entry_changed);
-                 //update.setString(3,PrimaryKey);
                  update.setInt(2,id);
                  update.executeUpdate();
                  System.out.println(update);
