@@ -244,18 +244,17 @@ public class MainWindow extends javax.swing.JFrame {
 
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost/world", "root", "");//mit world datenbank verbinden
-            md=con.getMetaData();
-            ResultSet res_prim=md.getPrimaryKeys(null,null,"city");
+            md=con.getMetaData();//Infos nehmen
+            ResultSet res_prim=md.getPrimaryKeys(null,null,"city");//Daten vom Tabelle city nehmen
             javax.swing.JOptionPane.showMessageDialog(this,"Connected to database.");
-
-            res_prim.next();
-            System.out.println("Primary Key: "+res_prim.getString(4));
+            res_prim.next();//nachste result nehmen
+            System.out.println("Primary Key: "+res_prim.getString(4));//Spaltenname der pk ausgeben
             PrimaryKey=res_prim.getString(4);
-            pkPosition=res_prim.getInt("KEY_SEQ")-1;
+            pkPosition=res_prim.getInt("KEY_SEQ")-1;//Position von pk in array gespeichert, deshalb index ist -1
             System.out.println("pkPosition: "+ pkPosition);
             ResultSet res=md.getColumns(null,null,"city",null);//nur im console mit sout ausgeben
             //DefaultTableModel tableModel=new DefaultTableModel();//auch im Gui
-            Our_TableModel tableModel=new Our_TableModel(pkPosition);//damit wir ID nicht andern konnen.
+            Our_TableModel tableModel=new Our_TableModel(pkPosition);//damit wir ID nicht andern konnen
             int num_cols=0;
             while(res.next()){
                 tableModel.addColumn(res.getString(4));
@@ -264,7 +263,7 @@ public class MainWindow extends javax.swing.JFrame {
             }
             
             Statement stmt=con.createStatement();
-            res=stmt.executeQuery("SELECT * FROM city");
+            res=stmt.executeQuery("SELECT * FROM city");//alles selektieren
             while(res.next()){
                 Object[] arr=new Object[num_cols];
                 //jedes Element in res.next() in array legen
@@ -312,16 +311,16 @@ public class MainWindow extends javax.swing.JFrame {
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
         int row=jTable2.getSelectedRow(); 
-        String name = jTable2.getModel().getValueAt(row, pkPosition).toString();
+        String name = jTable2.getModel().getValueAt(row, pkPosition).toString();//nimmt den PKpos der zu loschende Daten
         try {
             int id=(int) jTable2.getModel().getValueAt(row,pkPosition);
-            PreparedStatement delete = con.prepareStatement("DELETE FROM  city  WHERE "+ PrimaryKey +" = ? ");
+            PreparedStatement delete = con.prepareStatement("DELETE FROM  city  WHERE "+ PrimaryKey +" = ? ");//prepared Statement aufbauen
             delete.setInt(1,id);
             System.out.println(delete);
-            delete.executeUpdate();
+            delete.executeUpdate();//nach delete alles updatieren
             
         } catch (SQLException ex) {
-            System.out.println("Error delteing Column");
+            System.out.println("Error deleting Column");
             javax.swing.JOptionPane.showMessageDialog(this,"Cannot delete column.","Database error",
                     JOptionPane.ERROR_MESSAGE);
         }
@@ -381,7 +380,7 @@ public class MainWindow extends javax.swing.JFrame {
         }
         //jTable2.setModel(new DefaultTableModel());
     }//GEN-LAST:event_btnDeleteActionPerformed
-        public void tableModelChanged(TableModelEvent e ){
+        public void tableModelChanged(TableModelEvent e ){    //update
             int row=e.getFirstRow();
             String columnName= jTable2.getModel().getColumnName(e.getColumn());
                     //anderungen sehen,aber nicht im Database!!
